@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
 import { addTournament } from '@/lib/actionServer';
+import { revalidatePath } from 'next/cache';
 
 export default function CreateTournament() {
     const [tournament, setTournament] = useState({
@@ -36,44 +37,55 @@ export default function CreateTournament() {
     };
 
     return (
-        <main>
-            <Link href={'/tournaments'}>All Tournaments</Link>
-            <h1>Add Tournament</h1>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="name">Name:</label>
-                <input
-                    type="text"
-                    id="name"
-                    value={tournament.name}
-                    onChange={handleTournamentChange}
-                    required
-                />
-                <label htmlFor="fieldNbr">Field Number:</label>
-                <input
-                    type="number"
-                    id="fieldNbr"
-                    value={tournament.fieldNbr}
-                    onChange={handleTournamentChange}
-                    required
-                />
-                <label htmlFor="start">Start Date:</label>
-                <input
-                    type="date"
-                    id="start"
-                    value={tournament.start}
-                    onChange={handleTournamentChange}
-                    required
-                />
-                <label htmlFor="end">End Date:</label>
-                <input
-                    type="date"
-                    id="end"
-                    value={tournament.end}
-                    onChange={handleTournamentChange}
-                    required
-                    />
-                <button type="submit">Submit</button>
+            <form onSubmit={handleSubmit} className='flex flex-col items-center w-1/2 gap-10'>
+                <div  className='flex justify-between  w-full'>
+                    <label htmlFor="name">Name:</label>
+                    <input
+                     className='h-10 w-80 text-black border-2 border-gray-300 rounded-md hover:border-blue-500'
+                        type="text"
+                        id="name"
+                        value={tournament.name}
+                        onChange={handleTournamentChange}
+                        required
+                        />
+                </div>
+                <div  className='flex justify-between w-full'>
+                    <label htmlFor="fieldNbr">Field Number:</label>
+                    <input
+                        className='h-10 w-20 text-black border-2 border-gray-300 rounded-md hover:border-blue-500'
+                        type="number"
+                        id="fieldNbr"
+                        value={tournament.fieldNbr}
+                        onChange={handleTournamentChange}
+                        required
+                        />
+                </div>
+                <div  className='flex justify-between  w-full'>
+                    <label htmlFor="start">Start Date:</label>
+                    <input
+                    className='h-10 w-80 text-black border-2 border-gray-300 rounded-md hover:border-blue-500'
+                        type="datetime-local"
+                        id="start"
+                        value={tournament.start}
+                        onChange={handleTournamentChange}
+                        required
+                        />
+                </div>
+                <div  className='flex justify-between  w-full'>
+                    <label htmlFor="end">End Date:</label>
+                    <input
+                    className='h-10 w-80 text-black border-2 border-gray-300 rounded-md hover:border-blue-500'
+
+                        type="datetime-local"
+                        id="end"
+                        value={tournament.end}
+                        onChange={handleTournamentChange}
+                        required
+                        />
+                </div>
+                <div className=''>
+                    <button type="submit" className='bg-blue-500 w-20 border-2 h-10 rounded-lg hover:border-blue-900'>Submit</button>
+                </div>
             </form>
-        </main>
     );
 }
