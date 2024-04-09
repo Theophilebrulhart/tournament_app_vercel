@@ -1,10 +1,11 @@
 import CreateTeam from "@/components/createTeamForm/createTeamForm";
+import TeamCard from "@/components/teamCard/teamCard";
 import { getTeam, getTournament } from "@/lib/getData";
 
 export default async function SingleTournament({ params }) {
     const { id } = params;
 
-    const tournament = await getTournament(id);
+    const tournament = await getTournament(id); // foutre dans un state => a voir 
 
     return (
         <div className="h-screen flex flex-col gap-10 items-center">
@@ -21,10 +22,7 @@ export default async function SingleTournament({ params }) {
                     </div>
                     <div className="flex flex-col gap-8 items-center justify-between w-full p-4">
                         {tournament?.team && tournament.team.map((team, index) => (
-                            <div key={team.id} className="flex w-full justify-between border-b-2 border-gray-600">
-                                <div className="text-xl">{index + 1 + "."} {team.name}</div>
-                                <div className="text-xl">{team.level}</div>
-                            </div>
+                           <TeamCard key={index} team={team} index={index}/>
                             ))}
                     </div>
                 </div>
