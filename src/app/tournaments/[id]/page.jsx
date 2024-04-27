@@ -1,15 +1,12 @@
-"use client"
 import CreateTeam from "@/components/createTeamForm/createTeamForm";
 import TeamCard from "@/components/teamCard/teamCard";
 import DeleteTournament from "@/components/tournamentForm/deleteTournamentForm";
 import { getTournament } from "@/lib/getData";
-import { useState } from "react";
 
 export default async function SingleTournament({ params }) {
     const { id } = params;
 
-    const tournament = await getTournament(id); // foutre dans un state => a voir 
-    console.log("first tournament", tournament.name);
+    const tournament = await getTournament(id);
 
     return (
         <div className="h-screen flex flex-col gap-10 items-center">
@@ -19,7 +16,7 @@ export default async function SingleTournament({ params }) {
                 </h1>
                 <DeleteTournament id={id} />
             </div>
-            {/* <div className="flex w-full p-10 h-full">
+            <div className="flex w-full p-10 h-full">
                 <div className=" flex w-1/3 flex-col h-full gap-10">
                     <CreateTeam  tournamentId={id}/>
                     <div className="flex justify-between w-full p-4">
@@ -35,7 +32,7 @@ export default async function SingleTournament({ params }) {
                 <div className="flex w-2/3  h-full ">
 
                 </div>
-            </div> */}
+            </div>
         </div>
     )
 }
