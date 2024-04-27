@@ -2,7 +2,6 @@ import Link from "next/link"
 
 export default function TournamentCard ({ tournament }) {
 
-    console.log("tournament", tournament)
     return (
         <Link 
             className=" w-96  flex justify-between p-4 items-center flex-col h-52 border-2 border-gray-300 rounded-md hover:border-blue-500"

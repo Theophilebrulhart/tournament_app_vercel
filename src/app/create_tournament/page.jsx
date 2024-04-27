@@ -1,4 +1,4 @@
-import CreateTournamentForm from "@/components/createTournamentForm/createTournamentForm";
+import CreateTournamentForm from "@/components/tournamentForm/createTournamentForm";
 
 
 export default function CreateTournament() {
