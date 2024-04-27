@@ -17,7 +17,7 @@ export default async function SingleTournament({ params }) {
                 <DeleteTournament id={id} />
             </div>
             <div className="flex w-full p-10 h-full">
-                <div className=" flex w-1/3 flex-col h-full gap-10">
+                <div className=" flex w-1/6 flex-col h-full gap-10">
                     <CreateTeam  tournamentId={id}/>
                     <div className="flex justify-between w-full p-4">
                         <div>Team</div>
