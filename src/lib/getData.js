@@ -4,7 +4,11 @@ export async function getTournaments() {
 
     try
     {
-        const tournaments = await prisma.tournament.findMany();
+        const tournaments = await prisma.tournament.findMany({
+            include: {
+                team : {}
+            }
+        });
         return tournaments;
     }
     catch (error)
