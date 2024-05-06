@@ -1,16 +1,31 @@
 "use client";
+import { generateTournamentTree } from "@/hooks/generateTournamentTree";
+import { useState } from "react";
 
-import { generateTournamentTree } from "@/hooks/useGenerateTournament";
+export default function TournamentGenerate({ tournament, style }) {
+    const [matchsNbr, setMatchsNbr] = useState(5);
 
-export default function TournamentGenerate({tournament}) {
+    const handleGenerateTournament = () => {
+        generateTournamentTree(tournament, matchsNbr);
+    };
+
     return (
-        <button
-            style={{ position: "absolute", top: 0, left: 50 }} 
-            className="bg-blue-500/50 flex gap-4 border-2 p-2 rounded-lg hover:bg-blue-700"
-            onClick={generateTournamentTree(tournament)}
-        >
-            Generate
+        <div style={{...style}} className="flex gap-2">
+        <button onClick={handleGenerateTournament} className="flex gap-4 border-2 p-2 rounded-lg bg-blue-500/80 hover:bg-blue-700" >
+            Generate Tournament
         </button>
+        <input 
+            type="number" 
+            value={matchsNbr} 
+            onChange={(e) => setMatchsNbr(parseInt(e.target.value))} 
+            className="border-2 rounded-lg w-8 text-black"
+            placeholder="Enter number of matches" 
+            style={{ 
+                WebkitAppearance: "none", /* Pour Safari/Chrome */
+                MozAppearance: "textfield", /* Pour Firefox */
+                appearance: "textfield" /* Pour autres navigateurs */
+            }} 
+            />
+        </div>
     );
-    
 }

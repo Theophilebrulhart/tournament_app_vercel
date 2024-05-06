@@ -45,7 +45,7 @@ export default function CreateTeam({tournamentId}) {
                         <input type="hidden" name="tournamentId" value={tournamentId} />
                 </div>
               
-                <button type="submit"  onClick={() => setIsLoaded(true)} className='bg-blue-500 w-20 border-2 h-10 rounded-lg hover:border-blue-900'>{isLoaded ? <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div> : "add"}</button>
+                <button type="submit"  onClick={() => setIsLoaded(true)} className='{bg-blue-500} w-20 border-2 h-10 rounded-lg hover:border-blue-900'>{isLoaded ? <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div> : "add"}</button>
     
             </form>
         </main>

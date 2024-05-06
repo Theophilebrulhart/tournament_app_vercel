@@ -16,7 +16,7 @@ export default async function SingleTournament({ params }) {
                     {tournament && tournament.name}
                 </h1>
                 <DeleteTournament id={id} style={{position : "absolute", top : 0, right:50}}/>
-               <TournamentGenerate tournament={tournament}/>
+               <TournamentGenerate tournament={tournament} style={{position : "absolute", top : 0, left:50}}/>
             </div>
             <div className="flex w-full p-10 h-full gap-5">
                 <div className=" flex w-1/6 flex-col h-full gap-10">
