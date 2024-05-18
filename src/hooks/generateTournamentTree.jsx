@@ -25,10 +25,21 @@ const separateTeams = (teams) => {
             const priorityOpponents = group.filter(t => t.id !== team.id).map(t => t.id);
             team.priorityOpponents = priorityOpponents;
             team.priorityOpponentsTmp = priorityOpponents;
-            const groupIndex = team.level === 1 ? 1 : team.level - 2;
-            const nonPriorityOpponents = groupTeam[groupIndex].filter(t => t.id !== team.id).map(t => t);
-            team.nonPriorityOpponents = nonPriorityOpponents;
-            team.nonPriorityOpponentsTmp = nonPriorityOpponents;
+            if (team.level === 2) {
+                const nonPriorityOpponents = [
+                    ...groupTeam[0].filter(t => t.id !== team.id),
+                    ...groupTeam[2].filter(t => t.id !== team.id)
+                ];
+                team.nonPriorityOpponents = nonPriorityOpponents;
+                team.nonPriorityOpponentsTmp = nonPriorityOpponents;
+                console.log("non priority opponents", nonPriorityOpponents)
+            }
+            else {
+                const groupIndex = team.level === 1 ? 1 : team.level - 2;
+                const nonPriorityOpponents = groupTeam[groupIndex].filter(t => t.id !== team.id).map(t => t);
+                team.nonPriorityOpponents = nonPriorityOpponents;
+                team.nonPriorityOpponentsTmp = nonPriorityOpponents;
+        }
         });
     });
     return groupTeam;
@@ -42,11 +53,11 @@ const getPriorityOpponent = (team, asPlayed, group) => {
         console.log("no priority opponent found for team", team.name)
         return null;
     }
-    // console.log("availableOpponents", availableOpponents)
+    console.log("availableOpponents", availableOpponents)
     const randomIndex = Math.floor(Math.random() * availableOpponents.length);
     const opponent = availableOpponents[randomIndex];
     // console.log("opponent", opponent)
-    // console.log("group", group)
+    console.log("group", group)
     const opponentTeam = group.find(t => t.id === opponent);
     // console.log("opponentTeam", opponentTeam)
     team.priorityOpponentsTmp = team.priorityOpponentsTmp.filter(t => t !== opponent);
@@ -73,27 +84,9 @@ const getNonPriorityOpponent = (level, team, teamGroup, asPlayed, changeNonPrior
         }
         if (team.priorityOpponentsTmp.length === 0)
         {
-            let opponentFound;
             if (team.nonPriorityOpponentsTmp.length > 0)
             {
                 console.log("no priority opponent found for team", team.name, "but nonpriority opponents available but they all played and no one is available");
-                // //TODO revoir
-                // if (level === 1)
-                // {
-                //     console.log("level 1, no opponent found for team", team.name, "try to get opponent from level 3")
-                //     opponentFound = getNonPriorityOpponent(level + 3, team, teamGroup, asPlayed, true);
-                // }
-                // if (level === 3)
-                // {
-                //     console.log("level 3, no opponent found for team", team.name, "try to get opponent from level 1")
-                //     opponentFound = getNonPriorityOpponent(level - 3, team, teamGroup, asPlayed, true);
-                // }
-                // if (opponentFound)
-                // {
-                //     console.log("opponentFound in nonPriorityOpponents", opponentFound.id, "teamid", team.id)
-                //     if (opponentFound.id !== team.id)
-                //         return opponentFound;
-                // }
                 return null
             }
             console.log("no nonpriority opponent found for team", team.name, "allNonPriorityOpponents already played, try to get opponent from priorityOpponents again")
@@ -198,10 +191,20 @@ const verifiedMatchs = (matchs, teamGroup, matchsNbr) => {
     return true
 }
 
-const changeTeamsOrder = (array) => {
+const changeTeamsOrder = (array, front) => {
+    console.log("changeTeamsOrder")
     if (array.length === 0) return array;
-    const firstElement = array.shift();
-    array.push(firstElement);
+  
+    if (front)
+    {
+        const element = array.shift();
+        array.push(element);
+    }
+    else {
+       const element = array.pop();
+        array.unshift(element);
+    }
+    console.log("new team order", array);
     return array;
 };
 
@@ -262,7 +265,8 @@ const generateMatchs = (teamGroup, timePlan, fieldNbr, matchsNbr) => {
                     }
                 }
             });
-            changeTeamsOrder(group);
+            if (!noOpponentFound)
+                changeTeamsOrder(group, true);
         });
         // asPlayed = new Set();
         asPlayed.length = 0;
@@ -314,7 +318,10 @@ const hasAllMatchsGenerated = (teamGroup, nbrMatchs, matchBonus) => {
             if (team?.teamHistory?.length > nbrMatchs) {
                 console.log("more matches than expected for team", team.name, team.teamHistory.length, "played", nbrMatchs, "expected");
                 if (team?.teamHistory?.length - nbrMatchs === 1 && matchBonus && bonus === 0)
+                {
+                    console.log("ok its a bonus game for team ", team.name, "so we continue")
                     bonus++
+                }
                 else {
                     return false;
                 }
