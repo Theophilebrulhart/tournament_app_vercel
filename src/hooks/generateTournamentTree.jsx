@@ -21,9 +21,9 @@ const createTeamsOpponentsPriority = (teams) => {
             groupTeam[teamLevel - 1].push(team);
     });
     const prioPerLevel = {
-        0: [...groupTeam[0], ...groupTeam[1], ...groupTeam[2]],
+        0: [...groupTeam[0], ...groupTeam[1]],
         1: [...groupTeam[1], ...groupTeam[0], ...groupTeam[2]],
-        2: [...groupTeam[2], ...groupTeam[1], ...groupTeam[0]],
+        2: [...groupTeam[2], ...groupTeam[1]],
     }
     for (let i = 0; i < groupTeam.length; i++) {
         groupTeam[i].forEach(team => {
@@ -37,6 +37,7 @@ const createTeamsOpponentsPriority = (teams) => {
 
  const getPriorityOpponent = (team, asPlayed, teams) => {
     console.log("getPriorityOpponen for team : ", team.name)
+    console.log("team opponents", team.opponentsPriorityTmp)
        const availableOpponents = team.opponentsPriorityTmp.filter(opponent => !asPlayed?.includes(opponent));
     if (availableOpponents.length === 0) {
         console.log("no priority opponent found for team", team.name)
@@ -58,8 +59,9 @@ const updateTeamsHistory = (team, opponent) => {
     opponent.teamHistory.push(team.id);
 }
 
-const findOpponent = (team, teams, asPlayed, group, round) => {
-
+const findOpponent = (team, teams, asPlayed, round) => {
+    if (team.opponentsPriorityTmp.length === 0)
+        team.opponentsPriorityTmp = team.opponentsPriority;
     console.log("findOpponent for team", team.name, "round", round + 1)
     const opponent = getPriorityOpponent(team, asPlayed, teams);
     if (!opponent)
@@ -83,7 +85,8 @@ const findOpponent = (team, teams, asPlayed, group, round) => {
 const verifiedMatchs = (matchs, teams, matchsNbr) => {
     let asBeenSkipped = [];
     teams.forEach(team => {
-            if (team.matchHistory !== matchsNbr)
+            console.log("team.teamHistory", team.name, team.teamHistory.length )
+            if (team.teamHistory !== matchsNbr)
             {
                 if (team.asBeenSkipped)
                     asBeenSkipped.push(team);
@@ -94,6 +97,7 @@ const verifiedMatchs = (matchs, teams, matchsNbr) => {
     });
     if (asBeenSkipped.length > 0)
     {
+        console.log("asBeenSkipped", asBeenSkipped)
         if (asBeenSkipped.length % 2 === 0)
         {
             while (asBeenSkipped.length > 0)
@@ -123,23 +127,56 @@ const suffleTeams = (array) => {
     return array;
 };
 
+const putTeamInFrontOfArray = (team, array) => {
+    const index = array.indexOf(team);
+    array.splice(index, 1);
+    array.unshift(team);
+};
+
 
 const generateMatchs = (teams, timePlan, fieldNbr, matchsNbr) => {
     const matchs = [];
     let asPlayed = [];
+    let asBeenSkipped = [];
+    teams = suffleTeams(teams);
+
     for (let i = 0; i < matchsNbr; i++) {  
-        teams = suffleTeams(teams);
         teams.forEach((team) => {
                 if (asPlayed.includes(team))
                     return;
-                const match = findOpponent(team, teams, asPlayed, team, i);
+                const match = findOpponent(team, teams, asPlayed, i);
                 if (match) {
                     asPlayed.push(match.team);
                     asPlayed.push(match.opponent);
                     matchs.push(match.match);
                 }
+                else {
+                    if (!team.asBeenSkipped){
+                        asBeenSkipped.forEach(asBeenSkippedTeam => {
+                            if (team.opponentsPriority.includes(asBeenSkippedTeam)){
+                                const match = {
+                                    round : i + 1,
+                                    team1: team.name,
+                                    team2: asBeenSkippedTeam.name,
+                                }
+                                matchs.push(match);
+                                asBeenSkipped.length = 0;
+                                return;
+                            }
+                        });
+                    }
+                   
+                        asBeenSkipped.push(team);
+                    
+                }
         });
         asPlayed.length = 0;
+        teams = suffleTeams(teams);
+        asBeenSkipped.forEach(team => {
+            console.log("on met la team en premier", team.name)
+            putTeamInFrontOfArray(team, teams);
+        });
+        asBeenSkipped.length = 0;
     };
     if (!verifiedMatchs(matchs, teams, matchsNbr))
         return [];
@@ -149,22 +186,17 @@ const generateMatchs = (teams, timePlan, fieldNbr, matchsNbr) => {
 }
 
 const clearTeamsData = (teams) => {
-    teams.forEach(group => {
-        group.forEach(team => {
-            team.priorityOpponentsTmp = team.priorityOpponents;
-            team.nonPriorityOpponentsTmp = team.nonPriorityOpponents;
-            team.hasAlreadyNonPriorityOpponent.length = 0;
+    teams.forEach(team => {
+            team.opponentsPriorityTmp = team.opponentsPriority;
             team.teamHistory.length = 0;      
-        });
     });
 }
 
 const hasAllMatchsGenerated = (teams, nbrMatchs, matchBonus) => {
     let bonus = 0;
-    for (let i = 0; i < teams.length; i++) {
-        const group = teams[i];
-        for (let j = 0; j < group.length; j++) {
-            const team = group[j];
+    
+        for (let j = 0; j < teams.length; j++) {
+            const team = teams[j];
             if (team?.teamHistory?.length < nbrMatchs) {
                 console.log("less matches than expected for team", team.name, team.teamHistory.length, "played", nbrMatchs, "expected");
                 return false;
@@ -180,8 +212,12 @@ const hasAllMatchsGenerated = (teams, nbrMatchs, matchBonus) => {
                     return false;
                 }
             }
+            if (team.teamHistory.some((item, index) => team.teamHistory.indexOf(item) !== index && team.opponentsPriority.length >= nbrMatchs)) {
+                console.log("team", team.name, "has played against the same team twice but enough priority opponents are in the tournament");
+                return false;
+            }
+            
         }
-    }
     return true;
 };
 
