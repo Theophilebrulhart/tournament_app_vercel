@@ -35,6 +35,12 @@ const createTeamsOpponentsPriority = (teams) => {
     return finalTeams;
 }
 
+const pushMatch = (matchs, team1, team2) => {
+    matchs.push({team1 : team1.name, team2 : team2.name});
+    updateTeamsDiffLevel(team1, team2);
+    updateTeamsHistory(team1, team2);
+}
+
  const getPriorityOpponent = (team, nbrMatchs) => {
     // console.log("getPriorityOpponen for team : ", team.name)
     // console.log("team opponents", team.opponentsPriorityTmp)
@@ -80,7 +86,8 @@ const updateTeamsDiffLevel= (team, opponent) => {
 
 
 const findOpponent = (team, nbrMatchs) => {
-    if (team.opponentsPriorityTmp.length === 0)
+    const availableOpponents = team.opponentsPriorityTmp.filter(opponent => opponent?.teamHistory?.length !== nbrMatchs)
+    if (availableOpponents === 0)
         team.opponentsPriorityTmp = team.opponentsPriority;
     // console.log("findOpponent for team", team.name, "round", round + 1)
     const opponent = getPriorityOpponent(team, nbrMatchs);
@@ -95,26 +102,53 @@ const findOpponent = (team, nbrMatchs) => {
             team1: team.name,
             team2: opponent.name,
         }
-        updateTeamsHistory(team, opponent);
-        updateTeamsDiffLevel(team, opponent);
         return {match, opponent, team};
     }
     return null;
 }
 
-const suffleTeams = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+const handleMissingMatches = (teamMissingMatches, bonus, matchs, matchsNbr) => {
+    console.log("handleMissingMatches begin", teamMissingMatches)
+    if (teamMissingMatches.length > 1) {
+        console.log("looop on teamMissingMatches");
+        
+        while (teamMissingMatches.length > 1) {
+            let minDiff = Infinity;
+            let team1 = null;
+            let team2 = null;
+    
+            for (let i = 0; i < teamMissingMatches.length - 1; i++) {
+                for (let j = i + 1; j < teamMissingMatches.length; j++) {
+                    const diff = Math.abs(teamMissingMatches[i].level - teamMissingMatches[j].level);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        team1 = teamMissingMatches[i];
+                        team2 = teamMissingMatches[j];
+                    }
+                }
+            }
+    
+            if (team1 && team2) {
+                pushMatch(matchs, team1, team2);
+                console.log("team1", team1.name, "team2", team2.name);
+                teamMissingMatches = teamMissingMatches.filter(team => team.teamHistory.length < matchsNbr);
+            } else {
+                break;
+            }
+        }
     }
-    return array;
-};
+    
+    console.log("teamMissingMatches", teamMissingMatches);
+    if (teamMissingMatches[0] && bonus) {
+        pushMatch(matchs, teamMissingMatches[0], teamMissingMatches[0].opponentsPriority[0]);
+    }
+}
 
 const generateMatchs = (teams, matchsNbr, matchBonus, matchTotal ) => {
     const matchs = [];
     
     // teams = suffleTeams(teams);
-   for (let i = 0; i < 500 && matchs < matchTotal; i++) {
+   for (let i = 0; i < 500 && matchs.length < matchTotal; i++) {
         teams.forEach((team) => {
             if (team.teamHistory && team.teamHistory.length === matchsNbr)
             {
@@ -123,12 +157,16 @@ const generateMatchs = (teams, matchsNbr, matchBonus, matchTotal ) => {
             }
                 const match = findOpponent(team, matchsNbr);
                 if (match) {
-                    matchs.push(match.match);
+                    pushMatch(matchs, match.team, match.opponent);
                 }
         });  
     };
+    const teamMissingMatches = teams.filter(team => team.teamHistory.length < matchsNbr);
+    if (teamMissingMatches.length > 0)
+        handleMissingMatches(teamMissingMatches, matchBonus, matchs, matchsNbr);
+    if (matchs.length < matchTotal)
+        console.log("not enough matchs generated")
     console.log("matchs", matchs);
-
     return matchs;
 }
 
@@ -200,6 +238,8 @@ export function generateTournamentTree(tournament, matchsNbr) {
             if (diffTotal !== false)
             {
                 console.log("Tournament tree generated successfully with diffTotal = ", diffTotal);
+                if (diffTotal === 0)
+                    return {matchs, diffTotal};
                 validTree.push({matchs, diffTotal});
             }
         } else {
