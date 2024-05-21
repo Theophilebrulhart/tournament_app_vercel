@@ -35,12 +35,13 @@ const createTeamsOpponentsPriority = (teams) => {
     return finalTeams;
 }
 
- const getPriorityOpponent = (team, asPlayed, teams) => {
+ const getPriorityOpponent = (team, nbrMatchs) => {
     // console.log("getPriorityOpponen for team : ", team.name)
     // console.log("team opponents", team.opponentsPriorityTmp)
-    const availableOpponents = team.opponentsPriorityTmp.filter(opponent => !asPlayed?.includes(opponent));
+    const availableOpponents = team.opponentsPriorityTmp.filter(opponent => opponent?.teamHistory?.length !== nbrMatchs) 
+    
 
-     const sameLevelOpponents = availableOpponents.filter(opponent => opponent.level === team.level);
+    const sameLevelOpponents = availableOpponents.filter(opponent => opponent.level === team.level);
     const differentLevelOpponents = availableOpponents.filter(opponent => opponent.level !== team.level);
     differentLevelOpponents.sort((a, b) => a.diffLevel - b.diffLevel);
     const sortedOpponents = sameLevelOpponents.concat(differentLevelOpponents);
@@ -52,7 +53,7 @@ const createTeamsOpponentsPriority = (teams) => {
         console.log("no priority opponent found for team", team.name)
         return null;
     }
-    const opponent = availableOpponents.shift();
+    const opponent = sortedOpponents.shift();
     team.opponentsPriorityTmp = team.opponentsPriorityTmp.filter(t => t !== opponent);
     opponent.opponentsPriorityTmp = opponent.opponentsPriorityTmp.filter(t => t !== team);
     return (opponent);
@@ -78,11 +79,11 @@ const updateTeamsDiffLevel= (team, opponent) => {
 }
 
 
-const findOpponent = (team, teams, asPlayed, round) => {
+const findOpponent = (team, nbrMatchs) => {
     if (team.opponentsPriorityTmp.length === 0)
         team.opponentsPriorityTmp = team.opponentsPriority;
     // console.log("findOpponent for team", team.name, "round", round + 1)
-    const opponent = getPriorityOpponent(team, asPlayed, teams);
+    const opponent = getPriorityOpponent(team, nbrMatchs);
     if (!opponent)
     {
         console.log("no opponent found for team", team.name)
@@ -91,7 +92,6 @@ const findOpponent = (team, teams, asPlayed, round) => {
     if (opponent) {
         // console.log("round", round + 1, "team", team.name, "opponent", opponent.name)
         const match = {
-            round : round+1,
             team1: team.name,
             team2: opponent.name,
         }
@@ -102,70 +102,6 @@ const findOpponent = (team, teams, asPlayed, round) => {
     return null;
 }
 
-const verifiedMatchs = (matchs, teams, matchsNbr, matchBonus) => {
-    let hasBeenSkipped = [];
-    let bonusMatch = null;
-    teams.forEach(team => {
-        console.log("team.teamHistory", team.name, team.teamHistory.length, "diffLevel", team.diffLevel )
-        if (team.teamHistory.length !== matchsNbr) {
-            if (team.teamHistory.length === matchsNbr - 1)
-                hasBeenSkipped.push(team);
-                if (team.teamHistory.length === matchsNbr - 2 && matchBonus){
-                    hasBeenSkipped.push(team);
-                    bonusMatch = team;
-                }
-        }
-        else {
-            return false;
-        }
-    });
-    if (hasBeenSkipped.length === 2 || hasBeenSkipped.length === 3) {
-        
-        let minDiff = Infinity;
-        let team1 = null;
-        let team2 = null;
-
-        for (let i = 0; i < hasBeenSkipped.length - 1; i++) {
-            for (let j = i + 1; j < hasBeenSkipped.length; j++) {
-                const diff = Math.abs(hasBeenSkipped[i].level - hasBeenSkipped[j].level);
-                if (diff < minDiff && hasBeenSkipped[i] !== hasBeenSkipped[j]) {
-                    minDiff = diff;
-                    team1 = hasBeenSkipped[i];
-                    team2 = hasBeenSkipped[j];
-                }
-            }
-        }
-
-        if (team1 && team2) {
-            const match = {
-                round: 9999,
-                team1: team1.name,
-                team2: team2.name,
-            };
-            matchs.push(match);
-            updateTeamsDiffLevel(team1, team2);
-            updateTeamsHistory(team1, team2);
-            hasBeenSkipped = hasBeenSkipped.filter(t => t !== team1 && t !== team2);
-        }
-        let thirdTeam = hasBeenSkipped?.pop();
-        if (!thirdTeam)
-            thirdTeam = bonusMatch;
-        if (thirdTeam && matchBonus) {
-            console.log("BONUS GAME BC THE Of THE ALLMATCHNBR");
-            const match = {
-                round: 7777,
-                team1: thirdTeam.name,
-                team2: thirdTeam.opponentsPriority[0].name,
-            };
-            matchs.push(match);
-            updateTeamsDiffLevel(thirdTeam, thirdTeam.opponentsPriority[0]);
-            updateTeamsHistory(thirdTeam, thirdTeam.opponentsPriority[0]);
-        }
-    }
-    
-    return true;
-}
-
 const suffleTeams = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -174,74 +110,23 @@ const suffleTeams = (array) => {
     return array;
 };
 
-const putTeamInFrontOfArray = (team, array) => {
-    const index = array.indexOf(team);
-    array.splice(index, 1);
-    array.unshift(team);
-};
-
-
-const generateMatchs = (teams, timePlan, fieldNbr, matchsNbr, matchBonus) => {
+const generateMatchs = (teams, matchsNbr, matchBonus, matchTotal ) => {
     const matchs = [];
-    let asPlayed = [];
-    let hasBeenSkipped = [];
-    teams = suffleTeams(teams);
-    for (let i = 0; i < matchsNbr; i++) {  
-        hasBeenSkipped.forEach((team) => {
-            console.log("fiiirst with team ", team.name, "round", i + 1)
-            const match = findOpponent(team, teams, asPlayed, 6666);
-            if (match) {
-                asPlayed.push(match.opponent);
-                matchs.push(match.match);
-                hasBeenSkipped = hasBeenSkipped.filter(t => t !== team);
-            }
-        });
+    
+    // teams = suffleTeams(teams);
+   for (let i = 0; i < 500 && matchs < matchTotal; i++) {
         teams.forEach((team) => {
-                if (asPlayed.includes(team))
-                    return;
-                const match = findOpponent(team, teams, asPlayed, i);
+            if (team.teamHistory && team.teamHistory.length === matchsNbr)
+            {
+                console.log("team", team.name, "has already played", matchsNbr, "matches")
+                return ;
+            }
+                const match = findOpponent(team, matchsNbr);
                 if (match) {
-                    asPlayed.push(match.team);
-                    asPlayed.push(match.opponent);
                     matchs.push(match.match);
                 }
-                else {
-                    if (!hasBeenSkipped){
-                        hasBeenSkipped.forEach(hasBeenSkippedTeam => {
-                            if (team.opponentsPriority.includes(hasBeenSkippedTeam)){
-                                console.log("on fait un match avec une team qui a été sautée", hasBeenSkippedTeam.name, "et", team.name)
-                                const match = {
-                                    round : 8888,
-                                    team1: team.name,
-                                    team2: hasBeenSkippedTeam.name,
-                                }
-                                matchs.push(match);
-                                updateTeamsHistory(team, hasBeenSkippedTeam);
-                                updateTeamsDiffLevel(team, hasBeenSkippedTeam);
-                                hasBeenSkipped = hasBeenSkipped.filter(t => t !== hasBeenSkippedTeam && t !== team);
-                                return;
-                            }
-                            else {
-                                console.log("aucune équipe contenu dans hasBeenSkipped n'est une priorité pour", team.name, hasBeenSkipped)
-                            }
-                        });
-                    }
-                    console.log("on met la team dans les hasBeenSkipped", team.name)
-                    hasBeenSkipped.push(team);
-                }
-        });
-        if (i !== matchsNbr - 1) {
-            asPlayed.length = 0;
-            teams = suffleTeams(teams);
-            // hasBeenSkipped.forEach(team => {
-            //     console.log("on met la team en premier", team.name)
-            //     putTeamInFrontOfArray(team, teams);
-            // });
-            // hasBeenSkipped.length = 0;
-        }
+        });  
     };
-    if (!verifiedMatchs(matchs, teams, matchsNbr, matchBonus))
-        return [];
     console.log("matchs", matchs);
 
     return matchs;
@@ -301,7 +186,7 @@ export function generateTournamentTree(tournament, matchsNbr) {
     const nbrUsedField = tournament.fieldNbr;
     const nbrAllMatchs= calculateTotalMatches(tournament.team.length, matchsNbr);
     console.log("totalMatches", nbrAllMatchs.totalMatches, "with bonus ?", nbrAllMatchs.matchBonus)
-    const iterationNbr = 100;
+    const iterationNbr = 1;
     const validTree = [];
     
     const timePlan = generateTimePlan(tournament.start, tournament.end, nbrUsedField, tournament.team.length, matchsNbr);
@@ -309,7 +194,7 @@ export function generateTournamentTree(tournament, matchsNbr) {
     
     for (let i = 0; i < iterationNbr; i++) {
         
-        const matchs = generateMatchs(teams, timePlan, nbrUsedField, matchsNbr, nbrAllMatchs.matchBonus);
+        const matchs = generateMatchs(teams, matchsNbr, nbrAllMatchs.matchBonus, nbrAllMatchs.totalMatches);
         if (matchs.length === nbrAllMatchs.totalMatches) {
             const diffTotal = hasAllMatchsGenerated(teams, matchsNbr, nbrAllMatchs.matchBonus)
             if (diffTotal !== false)
