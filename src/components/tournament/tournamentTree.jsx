@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation";
 import { addRound } from "@/lib/actionServer";
 
 export default function TournamentTree({tournament}) {
-  console.log("tournament in tournament tree", tournament)
-  
   const [matchsNbr, setMatchsNbr] = useState(5);
   const [tournamentTree, setTournamentTree] = useState(null);
   const [deleteTournamentTree, setDeleteTournamentTree] = useState(false);
@@ -16,16 +14,16 @@ export default function TournamentTree({tournament}) {
 
 
     const pushRoundToDb = async (round) => {
+      console.log("on push en db", round)
       setIsLoading(true);
           const res = await addRound(round, tournament.id);
           if (res.success){
-            console.log("match added");
+            console.log("round added");
           }
           else{
-            console.log("match not added", match, res.error);
+            console.log("match not added", res.error);
             return ;
           }
-      await Promise.all(promises);
       router.refresh();
       setIsLoading(false);
       return true;
@@ -39,14 +37,12 @@ export default function TournamentTree({tournament}) {
 
     const handleGenerateTournament = async () => {
       if (isLoading) return;
-      if (tournament.tournamentRound.length > 0  || (tournamentTree && tournamentTree.rounds.length > 0)){
+      if (tournament.tournamentRound && tournament?.tournamentRound.length > 0 ) {
         setDeleteTournamentTree(true);
         return;
       }
-      const round = generateRound(tournament.team, matchsNbr, tournament.id);
+      const round = generateRound(tournament.teams, matchsNbr, tournament.id);
       const res = await pushRoundToDb(round);
-      if (res)
-        setTournamentTree(tournamentTreeTmp);
     };
 
     return (

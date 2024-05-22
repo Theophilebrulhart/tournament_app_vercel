@@ -52,13 +52,14 @@ export async function addMatch(team1Id, team2Id, tournamentId, tournamentRound) 
 
 export async function addRound(round, tournamentId) {
     try{
-        const res = await fetch('/api/add_round', {
+        const res = await fetch('/api/add_tournamentRound', {
                 method: 'POST', 
                 headers: {
                 'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ round, tournamentId}) 
             })
+            console.log("res apres add round", res)
             return {success : ( await res.json()).result};
     } catch (error){
         console.error(error)

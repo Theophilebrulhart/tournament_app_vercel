@@ -7,7 +7,6 @@ import { getTournament } from "@/lib/getData";
 export default async function SingleTournament({ params }) {
     const { id } = params;
     const tournament = await getTournament(id);
-    console.log("tournament", tournament)
 
     return (
         <div className="  flex flex-col gap-10 items-center">

@@ -18,7 +18,6 @@ export async function getTournaments() {
 }
 
 export async function getTournament(id) {
-    console.log("get tournament id", id)
     try {
         const tournament = await prisma.tournament.findUnique({
            where: {

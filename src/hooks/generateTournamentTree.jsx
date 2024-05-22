@@ -47,14 +47,10 @@ const pairTeams = (teams) =>{
 }
 
 export const generateRound = (teams, nbrMatchs, tournamentId) => {
-    
-    const rounds = [];
 
     const seedTeams = initializeTeamsSeedLevel(teams);
     const sortedTeams = sortTeams(seedTeams);
     const pairs = pairTeams(sortedTeams);
-    rounds.push(pairs);
-    console.log("rounds", rounds)
-    return {rounds}
+    return (pairs);
 };
     
