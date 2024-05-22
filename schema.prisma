@@ -11,30 +11,44 @@ datasource db {
 }
 
 model Tournament {
-  id        String     @id @default(cuid())
-  name      String    
-  fieldNbr  Int
-  team      Team[]
-  createdAt DateTime   @default(now())
-  start     DateTime
-  end       DateTime
+  id                String     @id @default(cuid())
+  name              String    
+  fieldNbr          Int
+  team              Team[]
+  createdAt         DateTime   @default(now())
+  start             DateTime
+  end               DateTime
+  matches           Match[]
 
 }
 
 model Team {
-  id          String       @id @default(cuid())
-  createdAt   DateTime   @default(now())
-  name        String
-  tournaments Tournament[]
-  level       Int
-
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  name          String
+  tournaments   Tournament[]
+  level         Int
+  matches       Match[]     
 }
 
 model User {
-  id            String       @default(cuid()) @id
+  id            String        @default(cuid()) @id
   name          String?
-  email         String?   @unique
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
+  email         String?       @unique
+  createdAt     DateTime      @default(now()) @map(name: "created_at")
+  updatedAt     DateTime      @updatedAt @map(name: "updated_at")
   @@map(name: "users")
+}
+
+model Match {
+  id                String           @id @default(cuid())
+  tournamentId      String
+  scoreTeam1        Int
+  scoreTeam2        Int
+  tournamentRound   Int
+
+  teams             Team[]
+  tournament        Tournament      @relation(fields : [tournamentId], references : [id]) 
+  createdAt         DateTime        @default(now()) @map(name: "created_at")
+  updatedAt         DateTime        @updatedAt @map(name: "updated_at")
 }

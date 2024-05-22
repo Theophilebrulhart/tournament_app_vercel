@@ -25,8 +25,9 @@ export async function getTournament(id) {
                 id: id
             },
             include: {
-                team : {}
-            }
+                team : {},
+                matches: {}
+            },
         });
         return tournament;
     } catch (error) {

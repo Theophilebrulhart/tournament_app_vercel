@@ -1,12 +1,12 @@
 "use client";
-import { generateTournamentTree } from "@/hooks/generateTournamentTree";
+import { Tournament, generateTournamentTree } from "@/hooks/generateTournamentTree";
 import { useState } from "react";
 
 export default function TournamentGenerate({ tournament, style }) {
     const [matchsNbr, setMatchsNbr] = useState(5);
 
     const handleGenerateTournament = () => {
-        generateTournamentTree(tournament, matchsNbr);
+        const tournamentTree = new Tournament(tournament.team, matchsNbr);
     };
 
     return (
