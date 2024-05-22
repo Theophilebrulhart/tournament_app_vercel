@@ -1,30 +1,34 @@
 "use client"
-import { deleteMatch, deleteMatchByTournamentId, deleteTournament } from "@/lib/actionServer";
+import { deleteMatchsByTournamentId, deleteRoundsByTournamentId } from "@/lib/actionServer";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useFormState } from "react-dom";
 
-export default function DeleteTournamentTree({tournament, setDeleteTournamentTree, setTournamentTree}) {
+export default function DeleteTournamentTree({tournament, setDeleteTournamentTree}) {
 
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
     const deleteData = async () => {
-        console.log("tournament in deleteToutnamenrtree", tournament.matches)
-        if (tournament && tournament.matches) {
+        if (tournament && tournament.tournamentRounds && tournament.tournamentRounds.length > 0) {
             setIsLoading(true);
             
-                const res = await deleteMatchByTournamentId(tournament.id);
+                const res = await deleteMatchsByTournamentId(tournament.id);
                 console.log("res", res)
                 if (res.success) {
-                    console.log("matches deleted")
+                    console.log("All matches deleted")
+                    const res = await deleteRoundsByTournamentId(tournament.id);
+                    if (res.success) {
+                        console.log("All rounds deleted")
+                    }
+                    else {
+                        console.log("round couldnt be deleted", res.error)
+                    }
                 }
                 else {
-                    console.log("matches not deleted", res.error)
+                    console.log("match couldnt deleted", res.error)
                 }
             }
         setDeleteTournamentTree(false);
-        setTournamentTree(null);
         setIsLoading(false);
         router.refresh();
     }

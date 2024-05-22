@@ -137,7 +137,7 @@ export async function deleteMatch(matchId) {
     }
 }
 
-export async function deleteMatchByTournamentId(matchId) {
+export async function deleteMatchsByTournamentId(matchId) {
     try {
         const res = await fetch('/api/delete_match_by_tournament_id', {
             method: 'DELETE', 
@@ -155,5 +155,26 @@ export async function deleteMatchByTournamentId(matchId) {
     } catch (error) {
         console.error(error);
         return {error : "match could'nt be deleted"};
+    }
+}
+
+export async function deleteRoundsByTournamentId(tournamentId) {
+    try {
+        const res = await fetch('/api/delete_round_by_tournament_id', {
+            method: 'DELETE', 
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(tournamentId)
+        });
+
+        if (!res.ok) {
+            throw new Error('Failed to delete rounds');
+        }
+        const data = await res.json();
+        return {success : data.result};
+    } catch (error) {
+        console.error(error);
+        return {error : "rounds could'nt be deleted"};
     }
 }

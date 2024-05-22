@@ -14,18 +14,18 @@ export default function TournamentTree({tournament}) {
 
 
     const pushRoundToDb = async (round) => {
-      console.log("on push en db", round)
       setIsLoading(true);
-          const res = await addRound(round, tournament.id);
-          if (res.success){
-            console.log("round added");
-          }
-          else{
-            console.log("match not added", res.error);
-            return ;
-          }
-      router.refresh();
-      setIsLoading(false);
+        const res = await addRound(round, tournament.id);
+        if (res.success){
+          console.log("round added");
+        }
+        else{
+          console.log("match not added", res.error);
+          setIsLoading(false);
+          return ;
+        }
+        router.refresh();
+        setIsLoading(false);
       return true;
   }
 
@@ -37,7 +37,7 @@ export default function TournamentTree({tournament}) {
 
     const handleGenerateTournament = async () => {
       if (isLoading) return;
-      if (tournament.tournamentRound && tournament?.tournamentRound.length > 0 ) {
+      if (tournament.tournamentRounds && tournament?.tournamentRounds.length > 0 ) {
         setDeleteTournamentTree(true);
         return;
       }
@@ -51,7 +51,6 @@ export default function TournamentTree({tournament}) {
         <DeleteTournamentTree 
           tournament={tournament} 
           setDeleteTournamentTree={setDeleteTournamentTree}
-          setTournamentTree={setTournamentTree}
           style={{position : "absolute", top : 0, right:50}}
        />}
     <div className="flex flex-col gap-10 w-full">

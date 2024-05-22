@@ -1,5 +1,6 @@
 import CreateTeam from "@/components/createTeamForm/createTeamForm";
 import TeamCard from "@/components/teamCard/teamCard";
+import DisplayRounds from "@/components/tournament/displayRounds";
 import TournamentTree from "@/components/tournament/tournamentTree";
 import DeleteTournament from "@/components/tournamentForm/deleteTournamentForm";
 import { getTournament } from "@/lib/getData";
@@ -31,7 +32,7 @@ export default async function SingleTournament({ params }) {
                 </div>
                 <div className="flex flex-col w-full h-full border-2 border-white">
                     <TournamentTree tournament={tournament}/>
-                    {/* <DisplayRounds tournamentId={tournament.id}/> */}
+                    <DisplayRounds tournament={tournament}/>
                 </div>
             </div>
         </div>

@@ -1,17 +1,22 @@
-import { getMatchesByTournamentId } from "@/lib/getData";
+import React from "react";
 
-export default async function DisplayRounds({ tournamentId }) {
-    console.log("Fetching matches for tournament ID:", tournamentId);
-    const allMatches = await getMatchesByTournamentId(tournamentId);
-    const sortedMatches = allMatches.sort((a, b) => a.tournamentRound - b.tournamentRound);
-    console.log("sortedMatches", sortedMatches);
+export default function DisplayRounds({ tournament }) {
+    const rounds = tournament.tournamentRounds; 
 
     return (
         <div>
-            {sortedMatches.map((match) => (
-                <div >
-                    
-                    <h2>un match</h2>
+            {rounds.map((round, roundIndex) => (
+                <div key={roundIndex}>
+                    <h2>Round {roundIndex + 1}</h2>
+                    <div>
+                        {round.matches.map((match, matchIndex) => (
+                            console.log("match", match),
+                            <div key={matchIndex}>
+                                <div>{match.teams[0].name}</div>
+                                <div>{match.teams[1].name}</div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             ))}
         </div>
