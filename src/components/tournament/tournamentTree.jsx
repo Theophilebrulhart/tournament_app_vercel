@@ -1,23 +1,23 @@
 "use client"
 import { useState } from "react";
-import { Tournament } from "@/hooks/generateTournamentTree";
+import  { generateRound } from "@/hooks/generateTournamentTree";
 import DeleteTournamentTree from "../tournamentForm/deleteTournamentTree";
-import { getTournament } from "@/lib/getData";
-import { addMatch } from "@/lib/actionServer";
+import { useRouter } from "next/navigation";
+import { addRound } from "@/lib/actionServer";
+
 export default function TournamentTree({tournament}) {
+  console.log("tournament in tournament tree", tournament)
   
   const [matchsNbr, setMatchsNbr] = useState(5);
   const [tournamentTree, setTournamentTree] = useState(null);
   const [deleteTournamentTree, setDeleteTournamentTree] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [matchs, setMatchs] = useState([tournament.matches]);
+  const router = useRouter();
 
-    const pushMatchToDB = async (tournamentTreeTmp) => {
+
+    const pushRoundToDb = async (round) => {
       setIsLoading(true);
-      const matches = tournamentTreeTmp.rounds[tournamentTreeTmp.rounds.length - 1];
-      const currentRound = tournamentTreeTmp.rounds.length;
-      const promises = matches.map(async (match) => {
-          const res = await addMatch(match[0].id, match[1].id, tournamentTreeTmp.tournamentId, currentRound);
+          const res = await addRound(round, tournament.id);
           if (res.success){
             console.log("match added");
           }
@@ -25,14 +25,13 @@ export default function TournamentTree({tournament}) {
             console.log("match not added", match, res.error);
             return ;
           }
-      });
       await Promise.all(promises);
+      router.refresh();
       setIsLoading(false);
       return true;
   }
 
     const generateTournamentRound = async () => {
-      if (!tournamentTree) return;
       console.log("generate nwe round")
       const what = tournamentTree.generateRound();
       setTournament(getNewTournament())
@@ -40,15 +39,14 @@ export default function TournamentTree({tournament}) {
 
     const handleGenerateTournament = async () => {
       if (isLoading) return;
-      if (tournament.matches.length > 0  || (tournamentTree && tournamentTree.rounds.length > 0)){
+      if (tournament.tournamentRound.length > 0  || (tournamentTree && tournamentTree.rounds.length > 0)){
         setDeleteTournamentTree(true);
         return;
       }
-      const tournamentTreeTmp = new Tournament(tournament.team, matchsNbr, tournament.id);
-      const res = await pushMatchToDB(tournamentTreeTmp);
+      const round = generateRound(tournament.team, matchsNbr, tournament.id);
+      const res = await pushRoundToDb(round);
       if (res)
         setTournamentTree(tournamentTreeTmp);
-        setMatches(tournamentTreeTmp.rounds[tournamentTreeTmp.rounds.length - 1]);
     };
 
     return (
@@ -71,7 +69,8 @@ export default function TournamentTree({tournament}) {
               onChange={(e) => setMatchsNbr(parseInt(e.target.value))} 
               className="border-2 rounded-lg w-8 text-black"
               placeholder="Enter number of matches" 
-          />
+              />
+        {/* { tournamentTree || tournament.tournamentRound && <button onClick={generateTournamentRound} className="border-2 p-2 rounded-lg bg-blue-500/80 hover:bg-blue-700">Generate new round</button>} */}
         </div>
       <div className="flex items-center w-full gap-10 space-between">
         <div className="w-24">
@@ -82,7 +81,6 @@ export default function TournamentTree({tournament}) {
               <div key={index} style={{ width: `calc(100% / ${tournament.fieldNbr}) `}}>Field {index + 1}</div>
               ))}
         </div>
-
       </div>
     </div>
     </>

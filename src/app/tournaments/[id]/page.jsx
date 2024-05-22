@@ -1,6 +1,5 @@
 import CreateTeam from "@/components/createTeamForm/createTeamForm";
 import TeamCard from "@/components/teamCard/teamCard";
-import TournamentGenerate from "@/components/tournament/tournamentGenerate";
 import TournamentTree from "@/components/tournament/tournamentTree";
 import DeleteTournament from "@/components/tournamentForm/deleteTournamentForm";
 import { getTournament } from "@/lib/getData";
@@ -8,6 +7,7 @@ import { getTournament } from "@/lib/getData";
 export default async function SingleTournament({ params }) {
     const { id } = params;
     const tournament = await getTournament(id);
+    console.log("tournament", tournament)
 
     return (
         <div className="  flex flex-col gap-10 items-center">
@@ -30,8 +30,9 @@ export default async function SingleTournament({ params }) {
                             ))}
                     </div>
                 </div>
-                <div className="flex w-full h-full border-2 border-white">
+                <div className="flex flex-col w-full h-full border-2 border-white">
                     <TournamentTree tournament={tournament}/>
+                    {/* <DisplayRounds tournamentId={tournament.id}/> */}
                 </div>
             </div>
         </div>

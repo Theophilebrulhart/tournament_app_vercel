@@ -12,7 +12,7 @@ export default function TournamentCard ({ tournament }) {
                 <div> - </div>
                 <div>{tournament.end.toLocaleDateString()}</div>
             </div>
-            <div>Nombre d'équipe :  {tournament.team.length}</div>
+            <div>Nombre d'équipe :  {tournament.teams.length}</div>
         </Link>
     )
 };

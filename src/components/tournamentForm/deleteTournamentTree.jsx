@@ -1,11 +1,13 @@
 "use client"
 import { deleteMatch, deleteMatchByTournamentId, deleteTournament } from "@/lib/actionServer";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormState } from "react-dom";
 
 export default function DeleteTournamentTree({tournament, setDeleteTournamentTree, setTournamentTree}) {
 
     const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
 
     const deleteData = async () => {
         console.log("tournament in deleteToutnamenrtree", tournament.matches)
@@ -24,6 +26,7 @@ export default function DeleteTournamentTree({tournament, setDeleteTournamentTre
         setDeleteTournamentTree(false);
         setTournamentTree(null);
         setIsLoading(false);
+        router.refresh();
     }
 
     return (

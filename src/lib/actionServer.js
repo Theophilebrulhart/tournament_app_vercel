@@ -1,7 +1,3 @@
-import { revalidatePath } from "next/cache";
-import { useRouter } from "next/navigation";
-
-
 export async function addTournament(previousState, formData) {
 
     const {name, fieldNbr, start, end} = Object.fromEntries(formData);
@@ -47,6 +43,21 @@ export async function addMatch(team1Id, team2Id, tournamentId, tournamentRound) 
                 'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ team1Id, team2Id, tournamentId, tournamentRound}) 
+            })
+            return {success : ( await res.json()).result};
+    } catch (error){
+        console.error(error)
+    }
+}
+
+export async function addRound(round, tournamentId) {
+    try{
+        const res = await fetch('/api/add_round', {
+                method: 'POST', 
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ round, tournamentId}) 
             })
             return {success : ( await res.json()).result};
     } catch (error){
