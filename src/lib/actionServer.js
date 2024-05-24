@@ -50,14 +50,14 @@ export async function addMatch(team1Id, team2Id, tournamentId, tournamentRound) 
     }
 }
 
-export async function addRound(round, tournamentId) {
+export async function addRound(round, tournamentId, maxRound, timePlan) {
     try{
         const res = await fetch('/api/add_tournamentRound', {
                 method: 'POST', 
                 headers: {
                 'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ round, tournamentId}) 
+                body: JSON.stringify({ round, tournamentId, maxRound, timePlan}) 
             })
             console.log("res apres add round", res)
             return {success : ( await res.json()).result};
@@ -176,5 +176,31 @@ export async function deleteRoundsByTournamentId(tournamentId) {
     } catch (error) {
         console.error(error);
         return {error : "rounds could'nt be deleted"};
+    }
+}
+
+export async function updateMatchScore(previousState, formData) {
+    const {matchId, team1Score, team2Score, team1Id, team2Id } = Object.fromEntries(formData);
+    const winner = team1Score > team2Score ? team1Id : team2Id;
+    const loser = team1Score < team2Score ? team1Id : team2Id;
+    console.log("winner", winner, "loser", loser)
+    
+    try {
+        const res = await fetch('/api/update_match', {
+            method: 'PUT', 
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({matchId, team1Score, team2Score, winner, loser})
+        });
+
+        if (!res.ok) {
+            throw new Error('Failed to update match score');
+        }
+        const data = await res.json();
+        return {success : data.result};
+    } catch (error) {
+        console.error(error);
+        return {error : "match score could'nt be updated"};
     }
 }

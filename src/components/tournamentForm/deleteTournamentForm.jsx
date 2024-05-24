@@ -18,7 +18,6 @@ export default function DeleteTournament({id, style}) {
            <div className="bg-blue-500/40 flex flex-col gap-3 p-8 rounded-lg">
                 <h3>Do you really want to delete the tournament ?</h3>
                 <div className="flex justify-evenly">
-
                 <form  action={formAction} >
                     <input type="hidden" name="tournamentId" value={id} />
                     <button className="cursor-pointer border-2 p-2 rounded-lg bg-red-500/80 hover:bg-red-700">Yes</button>

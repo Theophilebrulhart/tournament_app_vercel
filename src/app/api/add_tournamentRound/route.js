@@ -7,6 +7,8 @@ export async function POST(request) {
   try {
     const createdRound = await prisma.tournamentRound.create({
       data: {
+        maxRound: res.maxRound,
+        timePlan: res.timePlan,
         tournament: {
           connect: {
             id: res.tournamentId,
@@ -16,19 +18,21 @@ export async function POST(request) {
     });
 
     const matchPromises = res.round.map((matchtmp) => {
-        console.log("matchtmp", matchtmp)
       return prisma.match.create({
         data: {
           teams : {
             connect : [
-              {id : matchtmp[0].id},
-              {id : matchtmp[1].id}
-            ]
+              {id : matchtmp.teams[0].id},
+              {id : matchtmp.teams[1].id},
+            ],
           },
+          field : matchtmp.field,
+          startDate : matchtmp.date,
           tournamentRoundId: createdRound.id,
           tournamentId: res.tournamentId,
           scoreTeam1: 0,
           scoreTeam2: 0,
+          extraMatch: matchtmp.extraMatch
         },
       });
     });

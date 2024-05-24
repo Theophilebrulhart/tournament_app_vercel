@@ -1,39 +1,14 @@
 "use client"
 import { useState } from "react";
-import  { generateRound } from "@/hooks/generateTournamentTree";
+import  { generateRound, generateTimePlan, pushRoundToDb } from "@/hooks/generateTournamentTree";
 import DeleteTournamentTree from "../tournamentForm/deleteTournamentTree";
 import { useRouter } from "next/navigation";
-import { addRound } from "@/lib/actionServer";
 
 export default function TournamentTree({tournament}) {
   const [matchsNbr, setMatchsNbr] = useState(5);
-  const [tournamentTree, setTournamentTree] = useState(null);
   const [deleteTournamentTree, setDeleteTournamentTree] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-
-    const pushRoundToDb = async (round) => {
-      setIsLoading(true);
-        const res = await addRound(round, tournament.id);
-        if (res.success){
-          console.log("round added");
-        }
-        else{
-          console.log("match not added", res.error);
-          setIsLoading(false);
-          return ;
-        }
-        router.refresh();
-        setIsLoading(false);
-      return true;
-  }
-
-    const generateTournamentRound = async () => {
-      console.log("generate nwe round")
-      const what = tournamentTree.generateRound();
-      setTournament(getNewTournament())
-    };
 
     const handleGenerateTournament = async () => {
       if (isLoading) return;
@@ -41,8 +16,15 @@ export default function TournamentTree({tournament}) {
         setDeleteTournamentTree(true);
         return;
       }
-      const round = generateRound(tournament.teams, matchsNbr, tournament.id);
-      const res = await pushRoundToDb(round);
+      const timePlan =  generateTimePlan(tournament.start, tournament.end, tournament.fieldNbr, tournament.teams.length, matchsNbr);
+      if (!timePlan.length) return;
+      const round = generateRound(tournament.teams, timePlan, tournament.fieldNbr);
+      console.log("round", round);
+      setIsLoading(true);
+      const res = await pushRoundToDb(tournament.id,round, matchsNbr, timePlan);
+      setIsLoading(false);  
+      if (res)
+        router.refresh();
     };
 
     return (
@@ -65,18 +47,7 @@ export default function TournamentTree({tournament}) {
               className="border-2 rounded-lg w-8 text-black"
               placeholder="Enter number of matches" 
               />
-        {/* { tournamentTree || tournament.tournamentRound && <button onClick={generateTournamentRound} className="border-2 p-2 rounded-lg bg-blue-500/80 hover:bg-blue-700">Generate new round</button>} */}
         </div>
-      <div className="flex items-center w-full gap-10 space-between">
-        <div className="w-24">
-          horaire
-        </div>
-        <div className=" w-full flex justify-between gap-2">
-            {Array.from({ length: tournament.fieldNbr }, (_, index) => (
-              <div key={index} style={{ width: `calc(100% / ${tournament.fieldNbr}) `}}>Field {index + 1}</div>
-              ))}
-        </div>
-      </div>
     </div>
     </>
   )

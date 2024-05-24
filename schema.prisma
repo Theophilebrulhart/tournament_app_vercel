@@ -27,8 +27,9 @@ model Team {
   id            String        @id @default(cuid())
   createdAt     DateTime      @default(now())
   name          String
-  tournaments   Tournament[]
   level         Int
+
+  tournaments   Tournament[]
   matches       Match[]     
 }
 
@@ -44,6 +45,8 @@ model User {
 model tournamentRound {
     id                String           @id @default(cuid())
     tournamentId      String
+    maxRound          Int
+    timePlan          DateTime[]
 
     tournament        Tournament      @relation(fields : [tournamentId], references : [id]) 
     matches           Match[]
@@ -51,11 +54,16 @@ model tournamentRound {
 }
 
 model Match {
-  id                String           @id @default(cuid())
-  tournamentId      String
-  scoreTeam1        Int
-  scoreTeam2        Int
+  id                  String           @id @default(cuid())
+  tournamentId        String
   tournamentRoundId   String
+  startDate           DateTime
+  field               Int
+  scoreTeam1          Int?
+  scoreTeam2          Int?
+  winner              String?
+  loser               String?
+  extraMatch          String?      
 
   teams             Team[]
   tournament        Tournament      @relation(fields : [tournamentId], references : [id]) 
@@ -63,3 +71,5 @@ model Match {
   updatedAt         DateTime        @updatedAt @map(name: "updated_at")
   tournamentRound   tournamentRound @relation(fields : [tournamentRoundId], references : [id])
 }
+
+

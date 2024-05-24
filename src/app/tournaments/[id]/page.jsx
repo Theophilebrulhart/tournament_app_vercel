@@ -1,6 +1,6 @@
 import CreateTeam from "@/components/createTeamForm/createTeamForm";
 import TeamCard from "@/components/teamCard/teamCard";
-import DisplayRounds from "@/components/tournament/displayRounds";
+import DisplayRounds from "@/components/tournament/displayTournamentTree/displayRounds";
 import TournamentTree from "@/components/tournament/tournamentTree";
 import DeleteTournament from "@/components/tournamentForm/deleteTournamentForm";
 import { getTournament } from "@/lib/getData";
@@ -25,7 +25,7 @@ export default async function SingleTournament({ params }) {
                         <div>Level</div>
                     </div>
                     <div className="flex flex-col gap-8 items-center justify-between w-full p-4">
-                        {tournament?.team && tournament.team.map((team, index) => (
+                        {tournament?.teams && tournament.teams.map((team, index) => (
                             <TeamCard key={index} team={team} index={index}/>
                             ))}
                     </div>

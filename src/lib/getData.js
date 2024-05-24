@@ -24,7 +24,15 @@ export async function getTournament(id) {
                id: id
            },
             include: {
-                teams : {},
+                teams : {
+                    include: {
+                        matches : {
+                            include: {
+                                teams : {}
+                            }
+                        }
+                    }
+                },
                 tournamentRounds : {
                     include: {
                         matches : {
