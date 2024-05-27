@@ -13,7 +13,7 @@ export default function DisplayRounds({ tournament }) {
                         <div key={roundIndex} style={{ width: `calc(100% / ${tournament.fieldNbr})` }}>
                             <div>Round {roundIndex + 1}</div>
                             {rounds[roundIndex] &&
-                                <DisplayRound round={rounds[roundIndex]} maxRound={maxRound} tournament={tournament}/>
+                                <DisplayRound round={rounds[roundIndex]} maxRound={maxRound} tournament={tournament} roundIndex={roundIndex}/>
                             }
                         </div>
                     ))}

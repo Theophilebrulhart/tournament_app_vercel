@@ -21,8 +21,8 @@ export default function MatchCard({ match }) {
     // console.log("team in match [1]", match.teamsInMatch[1].name, match.teamsInMatch[1].rank)
 
     useEffect(() => {
-        setIsLoading(false);
         state?.success && router.refresh();
+        setIsLoading(false);
     }, [state?.success, router]);
 
     const handleTeam1Score = (e) => {

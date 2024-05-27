@@ -21,9 +21,9 @@ export default function TournamentTree({tournament}) {
       const round = generateRound(tournament.teams, timePlan, tournament.fieldNbr);
       setIsLoading(true);
       const res = await pushRoundToDb(tournament.id,round, matchsNbr, timePlan);
-      setIsLoading(false);  
       if (res)
-        router.refresh();
+      router.refresh();
+      setIsLoading(false);  
     };
 
     return (

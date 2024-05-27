@@ -117,7 +117,6 @@ export async function deleteTournament(previousState, formData) {
 }
 
 export async function deleteMatch(matchId) {
-    console.log("iciiii")
     try {
         const res = await fetch('/api/delete_match', {
             method: 'DELETE', 
@@ -138,14 +137,37 @@ export async function deleteMatch(matchId) {
     }
 }
 
-export async function deleteMatchsByTournamentId(matchId) {
+export async function deleteRound(roundId) {
     try {
-        const res = await fetch('/api/delete_match_by_tournament_id', {
+        const res = await fetch("/api/delete_round", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(roundId)
+        });
+        if (!res.ok) {
+            throw new Error("Failed to delete round");
+        }
+        const data = await res.json();
+        return {success: data.result};
+    }
+    catch (error) {
+        console.error(error);
+        return {error: "round could'nt be deleted"};
+    }
+}
+
+export async function deleteManyMatches(idToDel) {
+    const label = idToDel.label;
+    const id = idToDel.id;
+    try {
+        const res = await fetch('/api/delete_many_match', {
             method: 'DELETE', 
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(matchId)
+            body: JSON.stringify({label : id})
         });
 
         if (!res.ok) {
@@ -159,14 +181,16 @@ export async function deleteMatchsByTournamentId(matchId) {
     }
 }
 
-export async function deleteRoundsByTournamentId(tournamentId) {
+export async function deleteManyRounds(idToDel) {
+    const label = idToDel.label;
+    const id = idToDel.id;
     try {
-        const res = await fetch('/api/delete_round_by_tournament_id', {
+        const res = await fetch('/api/delete_many_round', {
             method: 'DELETE', 
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(tournamentId)
+            body: JSON.stringify({label : id})
         });
 
         if (!res.ok) {
@@ -180,14 +204,16 @@ export async function deleteRoundsByTournamentId(tournamentId) {
     }
 }
 
-export async function deleteTeamsInMatchByTournamentId(tournamentId) {
+export async function deleteManyTeamsInMatch(idToDel) {
+    const label = idToDel.label;
+    const id = idToDel.id;
     try {
-        const res = await fetch("/api/delete_teams_in_match_by_tournament_id", {
+        const res = await fetch("/api/delete_many_team_in_match", {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(tournamentId)
+            body: JSON.stringify({label : id})
         });
         if (!res.ok) {
             throw new Error("Failed to delete teamsInMatch");
