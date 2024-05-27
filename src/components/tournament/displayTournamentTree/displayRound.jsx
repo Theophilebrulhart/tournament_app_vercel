@@ -1,18 +1,15 @@
 "use client"
 
 import { generateRound, pushRoundToDb } from "@/hooks/generateTournamentTree";
-import DisplayMatch from "./matchCard";
 import { useRouter } from "next/navigation";
 import MatchCard from "./matchCard";
 
 export default function DisplayRound({ round, maxRound, tournament, index }) {
     const router = useRouter();
     const timePlan = round.timePlan;
-
-    
     
     const generateTournamentRound = async (timePlan) => {
-        console.log("generate nwe round")
+        console.log("generate nwe round", tournament.teams)
         const newRound = generateRound(tournament.teams, round.timePlan, tournament.fieldNbr);
         const res = await pushRoundToDb(tournament.id, newRound, maxRound, round.timePlan);
         if (res) {
@@ -20,12 +17,11 @@ export default function DisplayRound({ round, maxRound, tournament, index }) {
         }
       };
 
-      const matches = round.matches.sort((a, b) => {
-        return (a.rankTeam1 + a.rankTeam2) - (b.rankTeam1 + b.rankTeam2);
-      });
-        
-      
-      
+    const matches = round.matches.sort((a, b) => {
+    if ((a.teamsInMatch[0].rank + a.teamsInMatch[1].rank) === (b.teamsInMatch[0].rank + b.teamsInMatch[1].rank))
+        return a.field - b.field;
+    return (a.teamsInMatch[0].rank + a.teamsInMatch[1].rank) - (b.teamsInMatch[0].rank + b.teamsInMatch[1].rank);
+    });
 
     return (
         <div className="bg-red-500/10 flex flex-col gap-4">

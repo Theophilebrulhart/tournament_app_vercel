@@ -19,7 +19,6 @@ export default function TournamentTree({tournament}) {
       const timePlan =  generateTimePlan(tournament.start, tournament.end, tournament.fieldNbr, tournament.teams.length, matchsNbr);
       if (!timePlan.length) return;
       const round = generateRound(tournament.teams, timePlan, tournament.fieldNbr);
-      console.log("round", round);
       setIsLoading(true);
       const res = await pushRoundToDb(tournament.id,round, matchsNbr, timePlan);
       setIsLoading(false);  

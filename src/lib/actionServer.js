@@ -202,25 +202,42 @@ export async function deleteTeamsInMatchByTournamentId(tournamentId) {
 } 
 
 export async function updateMatchScore(previousState, formData) {
-    const {matchId, team1Score, team2Score, team1Id, team2Id } = Object.fromEntries(formData);
-    console.log("team1Score", team1Score, "team2Score", team2Score, "team1Id", team1Id, "team2Id", team2Id)
-    const winner = team1Score > team2Score ? team1Id : team2Id;
-    const loser = team1Score < team2Score ? team1Id : team2Id;
+    const {matchId, team1Score, team2Score, team1Id, team2Id, team1RelId, team2RelId } = Object.fromEntries(formData);
+    const winner = team1Score > team2Score ? team1RelId : team2RelId;
+    const loser = team1Score < team2Score ? team1RelId : team2RelId;
     console.log("winner", winner, "loser", loser)
+    console.log("team1Score", team1Score, "team2Score", team2Score)
     
     try {
-        const res = await fetch('/api/update_match', {
+        const resMatch = await fetch('/api/update_match', {
             method: 'PUT', 
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({matchId, team1Score, team2Score, winner, loser})
+            body: JSON.stringify({matchId, winner, loser})
         });
 
-        if (!res.ok) {
+        const resTeam1 = await fetch('/api/update_team_in_match', {
+            method: "PUT",
+            heeaders : {
+                "Content-Type" : "application/json"
+            },
+            body : JSON.stringify({matchId, score : team1Score, teamId : team1Id })
+        })
+
+        const resTeam2 = await fetch('/api/update_team_in_match', {
+            method: "PUT",
+            heeaders : {
+                "Content-Type" : "application/json"
+            },
+            body : JSON.stringify({matchId, score : team2Score, teamId : team2Id })
+        })
+
+        if (!resMatch.ok && !resTeam1.ok && !resTeam2.ok) {
             throw new Error('Failed to update match score');
         }
-        const data = await res.json();
+        
+        const data = await resTeam2.json();
         return {success : data.result};
     } catch (error) {
         console.error(error);

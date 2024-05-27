@@ -10,8 +10,6 @@ export async function PUT(request) {
         id: res.matchId,
       },
       data: {
-        scoreTeam1: parseInt(res.team1Score, 10),
-        scoreTeam2: parseInt(res.team2Score, 10),
         winner: res.winner,
         loser: res.loser,
       },

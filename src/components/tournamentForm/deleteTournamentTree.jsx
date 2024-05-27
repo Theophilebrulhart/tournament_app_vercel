@@ -17,18 +17,18 @@ export default function DeleteTournamentTree({tournament, setDeleteTournamentTre
                     console.log("All teamsInMatch deleted")
                     const res = await deleteMatchsByTournamentId(tournament.id);
                     if (res.success) {
-                        console.log("All rounds deleted")
+                        console.log("All matches deleted")
                         const res = await deleteRoundsByTournamentId(tournament.id);
                         if (res.success) {
-                            console.log("All teams in match deleted")
+                            console.log("All round in match deleted")
                         }
                         else {
-                            console.log("matches couldnt be deleted", res.error)
+                            console.log("rounds couldnt be deleted", res.error)
                         }
                     }
 
                     else {
-                        console.log("round couldnt be deleted", res.error)
+                        console.log("matches couldnt be deleted", res.error)
                     }
                 }
                 else {
