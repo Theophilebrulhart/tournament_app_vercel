@@ -34,6 +34,7 @@ const initializeTeamsSeedLevel = (teams) => {
 }
 
 const sortTeams = (teams) =>{
+    
     const sortedTeams = teams.sort((a, b) => {
         if (a.seed === b.seed) {
             return b.goalAverage - a.goalAverage;
@@ -66,8 +67,7 @@ const pairTeams = (teams) =>{
                     const currDiff = Math.abs(curr.seed - team.seed);
                     return currDiff < prevDiff ? curr : prev;
                 });
-                console.log("closest team", closestTeam)
-                pairs.push([team, closestTeam, closestTeam.id]);
+                pairs.push([closestTeam, team, closestTeam.id]);
             }
         }
     }
@@ -102,8 +102,6 @@ export const generateRound = (teams, timePlan, fieldNbr) => {
     console.log("sorted teams", sortedTeams)
     const pairs = pairTeams(sortedTeams);
     const matches = schedulePairsOnFields(pairs, timePlan, fieldNbr);
-    console.log("matches", matches)
-
     return (matches);
 };
     

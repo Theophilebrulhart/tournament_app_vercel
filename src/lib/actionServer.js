@@ -51,6 +51,7 @@ export async function addMatch(team1Id, team2Id, tournamentId, tournamentRound) 
 }
 
 export async function addRound(round, tournamentId, maxRound, timePlan) {
+    console.log("roudadeeee", round[0].teams[0].rank)
     try{
         const res = await fetch('/api/add_tournamentRound', {
                 method: 'POST', 
@@ -179,8 +180,30 @@ export async function deleteRoundsByTournamentId(tournamentId) {
     }
 }
 
+export async function deleteTeamsInMatchByTournamentId(tournamentId) {
+    try {
+        const res = await fetch("/api/delete_teams_in_match_by_tournament_id", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(tournamentId)
+        });
+        if (!res.ok) {
+            throw new Error("Failed to delete teamsInMatch");
+        }
+        const data = await res.json();
+        return {success: data.result};
+    }
+    catch (error) {
+        console.error(error);
+        return {error: "teamsInMatch could'nt be deleted"};
+    }
+} 
+
 export async function updateMatchScore(previousState, formData) {
     const {matchId, team1Score, team2Score, team1Id, team2Id } = Object.fromEntries(formData);
+    console.log("team1Score", team1Score, "team2Score", team2Score, "team1Id", team1Id, "team2Id", team2Id)
     const winner = team1Score > team2Score ? team1Id : team2Id;
     const loser = team1Score < team2Score ? team1Id : team2Id;
     console.log("winner", winner, "loser", loser)

@@ -37,7 +37,8 @@ export async function getTournament(id) {
                     include: {
                         matches : {
                             include: {
-                                teams : {}
+                                teams : {},
+                                teamsInMatch : {},
                             }
                         }
                     }

@@ -21,15 +21,9 @@ export default function DisplayRound({ round, maxRound, tournament, index }) {
       };
 
       const matches = round.matches.sort((a, b) => {
-        const dateA = new Date(a.startDate);
-        const dateB = new Date(b.startDate);
-        
-        if (dateA.getTime() === dateB.getTime()) {
-          return a.field - b.field;
-        } else {
-          return dateA - dateB;
-        }
+        return (a.rankTeam1 + a.rankTeam2) - (b.rankTeam1 + b.rankTeam2);
       });
+        
       
       
 

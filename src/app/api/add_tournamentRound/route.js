@@ -17,8 +17,19 @@ export async function POST(request) {
       },
     });
 
-    const matchPromises = res.round.map((matchtmp) => {
-      return prisma.match.create({
+    const matchPromises = res.round.map(async (matchtmp) => {
+       await prisma.team.update({
+        where: { id: matchtmp.teams[0].id },
+        data: { actualRank: matchtmp.teams[0].rank },
+      });
+      
+      await prisma.team.update({
+        where: { id: matchtmp.teams[1].id },
+        data: { actualRank: matchtmp.teams[1].rank },
+      });
+
+      
+      const createdMatch = await prisma.match.create({
         data: {
           teams : {
             connect : [
@@ -30,11 +41,27 @@ export async function POST(request) {
           startDate : matchtmp.date,
           tournamentRoundId: createdRound.id,
           tournamentId: res.tournamentId,
-          scoreTeam1: 0,
-          scoreTeam2: 0,
           extraMatch: matchtmp.extraMatch
         },
       });
+      
+      const teamsInMatchPromises = matchtmp.teams.map(async (team) => {
+        await prisma.teamInMatch.create({
+          data: {
+            score : 0,
+            rank : team.rank,
+            teamId : team.id,
+            name : team.name,
+            tournamentId : res.tournamentId,
+            match: {
+              connect: {
+                id: createdMatch.id,
+              },
+            },
+          },
+        });
+      });
+      
     });
 
     const createdMatches = await Promise.all(matchPromises);

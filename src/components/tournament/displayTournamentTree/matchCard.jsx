@@ -1,22 +1,22 @@
 "use client"
 
 import { updateMatchScore } from "@/lib/actionServer";
-import { NEXT_CACHE_REVALIDATE_TAG_TOKEN_HEADER } from "next/dist/lib/constants";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 
 export default function MatchCard({ match }) {
+
+    console.log("team in match", match)
     const matchDate = new Date(match.startDate);
     const formattedTime = matchDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const team1 = match.teams[0];
-    const team2 = match.teams[1];
+    const team1 = match.rankTeam1 < match.rankTeam2 ? match.teams[0] : match.teams[1];
+    const team2 = match.rankTeam1 < match.rankTeam2 ? match.teams[1] : match.teams[0];
     const [team1Score, setTeam1Score] = useState(0);
     const [team2Score, setTeam2Score] = useState(0);
     const [state, formAction] = useFormState(updateMatchScore, undefined);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-
     useEffect(() => {
         setIsLoading(false);
         state?.success && router.refresh();
@@ -38,6 +38,7 @@ export default function MatchCard({ match }) {
             </div>
             <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
+                    <div className="text-lg text-gray-600 font-medium">{match.rankTeam1}</div>
                     <div className="text-lg text-gray-600 font-medium">{team1.name}</div>
                     {match.scoreTeam1 > 0 ? 
                     (<div className="text-lg text-gray-600 font-medium">{match.scoreTeam1}</div>
@@ -52,6 +53,7 @@ export default function MatchCard({ match }) {
                     )}
                 </div>
                 <div className="flex items-center justify-between">
+                    <div className="text-lg text-gray-600 font-medium">{match.rankTeam2}</div>
                     <div className="text-lg text-gray-600 font-medium">{team2.name}</div>
                     {match.scoreTeam2 > 0 ? 
                     (<div className="text-lg text-gray-600 font-medium">{match.scoreTeam2}</div>

@@ -1,5 +1,5 @@
 "use client"
-import { deleteMatchsByTournamentId, deleteRoundsByTournamentId } from "@/lib/actionServer";
+import { deleteMatchsByTournamentId, deleteRoundsByTournamentId, deleteTeamsInMatchByTournamentId } from "@/lib/actionServer";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -12,20 +12,27 @@ export default function DeleteTournamentTree({tournament, setDeleteTournamentTre
         if (tournament && tournament.tournamentRounds && tournament.tournamentRounds.length > 0) {
             setIsLoading(true);
             
-                const res = await deleteMatchsByTournamentId(tournament.id);
-                console.log("res", res)
+                const res = await deleteTeamsInMatchByTournamentId(tournament.id);
                 if (res.success) {
-                    console.log("All matches deleted")
-                    const res = await deleteRoundsByTournamentId(tournament.id);
+                    console.log("All teamsInMatch deleted")
+                    const res = await deleteMatchsByTournamentId(tournament.id);
                     if (res.success) {
                         console.log("All rounds deleted")
+                        const res = await deleteRoundsByTournamentId(tournament.id);
+                        if (res.success) {
+                            console.log("All teams in match deleted")
+                        }
+                        else {
+                            console.log("matches couldnt be deleted", res.error)
+                        }
                     }
+
                     else {
                         console.log("round couldnt be deleted", res.error)
                     }
                 }
                 else {
-                    console.log("match couldnt deleted", res.error)
+                    console.log("teams in match couldnt deleted", res.error)
                 }
             }
         setDeleteTournamentTree(false);
