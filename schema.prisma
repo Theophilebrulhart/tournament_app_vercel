@@ -5,84 +5,82 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 model Tournament {
-  id                String     @id @default(cuid())
-  name              String    
-  fieldNbr          Int
-  createdAt         DateTime   @default(now())
-  start             DateTime
-  end               DateTime
-  matches           Match[]
-  tournamentRounds  tournamentRound[]
-  teams             Team[]
-
+  id               String            @id @default(cuid())
+  name             String
+  fieldNbr         Int
+  createdAt        DateTime          @default(now())
+  start            DateTime
+  end              DateTime
+  matches          Match[]
+  tournamentRounds tournamentRound[]
+  teams            Team[]
 }
 
 model Team {
-  id            String        @id @default(cuid())
-  createdAt     DateTime      @default(now())
-  name          String
-  level         Int
-  actualRank    Int?
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  name       String
+  level      Int
+  actualRank Int?
 
-  tournaments   Tournament[]
-  matches       Match[]
+  tournaments Tournament[]
+  matches     Match[]
 }
 
 model User {
-  id            String        @default(cuid()) @id
-  name          String?
-  email         String?       @unique
-  createdAt     DateTime      @default(now()) @map(name: "created_at")
-  updatedAt     DateTime      @updatedAt @map(name: "updated_at")
+  id        String   @id @default(cuid())
+  name      String?
+  email     String?  @unique
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+
   @@map(name: "users")
 }
 
 model tournamentRound {
-    id                String           @id @default(cuid())
-    tournamentId      String
-    maxRound          Int
-    timePlan          DateTime[]
+  id           String     @id @default(cuid())
+  tournamentId String
+  maxRound     Int
+  timePlan     DateTime[]
 
-    tournament        Tournament      @relation(fields : [tournamentId], references : [id]) 
-    matches           Match[]
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+  matches    Match[]
 
 }
 
 model Match {
-  id                  String           @id @default(cuid())
-  tournamentId        String
-  tournamentRoundId   String
-  startDate           DateTime
-  field               Int
-  winner              String?
-  loser               String?
-  extraMatch          String?      
+  id                String   @id @default(cuid())
+  tournamentId      String
+  tournamentRoundId String
+  startDate         DateTime
+  field             Int
+  winner            String?
+  loser             String?
+  extraMatch        String?
 
-  teams             Team[]
-  tournament        Tournament      @relation(fields : [tournamentId], references : [id]) 
-  createdAt         DateTime        @default(now()) @map(name: "created_at")
-  updatedAt         DateTime        @updatedAt @map(name: "updated_at")
-  tournamentRound   tournamentRound @relation(fields : [tournamentRoundId], references : [id])
-  teamsInMatch      TeamInMatch[]
+  teams           Team[]
+  tournament      Tournament      @relation(fields: [tournamentId], references: [id])
+  createdAt       DateTime        @default(now()) @map(name: "created_at")
+  updatedAt       DateTime        @updatedAt @map(name: "updated_at")
+  teamsInMatch    TeamInMatch[]
+  tournamentRound tournamentRound @relation(fields: [tournamentRoundId], references: [id])
 }
 
 model TeamInMatch {
-  id              String          @id @default(cuid())
-  teamId          String
-  score           Int
-  rank            Int
-  matchId         String
-  name            String
-  tournamentId    String
+  id                String @id @default(cuid())
+  teamId            String
+  score             Int
+  rank              Int
+  matchId           String
+  name              String
+  tournamentId      String
+  tournamentRoundId String
 
-
-  match           Match           @relation(fields : [matchId], references: [id])      
+  match           Match           @relation(fields: [matchId], references: [id])
 }
-
-

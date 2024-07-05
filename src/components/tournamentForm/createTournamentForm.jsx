@@ -11,7 +11,6 @@ export default function CreateTournament() {
     const router = useRouter();
     
     useEffect(() => {
-        console.log("state.succes ", state?.succes)
         state?.success && router.push("/tournaments");
     }, [state?.success, router]);
 

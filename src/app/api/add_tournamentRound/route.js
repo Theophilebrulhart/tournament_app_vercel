@@ -18,41 +18,42 @@ export async function POST(request) {
     });
 
     const matchPromises = res.round.map(async (matchtmp) => {
-       await prisma.team.update({
+      await prisma.team.update({
         where: { id: matchtmp.teams[0].id },
         data: { actualRank: matchtmp.teams[0].rank },
       });
-      
+
       await prisma.team.update({
         where: { id: matchtmp.teams[1].id },
         data: { actualRank: matchtmp.teams[1].rank },
       });
 
-      
       const createdMatch = await prisma.match.create({
         data: {
-          teams : {
-            connect : [
-              {id : matchtmp.teams[0].id},
-              {id : matchtmp.teams[1].id},
+          teams: {
+            connect: [
+              { id: matchtmp.teams[0].id },
+              { id: matchtmp.teams[1].id },
             ],
           },
-          field : matchtmp.field,
-          startDate : matchtmp.date,
+          field: matchtmp.field,
+          startDate: matchtmp.date,
           tournamentRoundId: createdRound.id,
           tournamentId: res.tournamentId,
-          extraMatch: matchtmp.extraMatch
+          extraMatch: matchtmp.extraMatch,
         },
       });
-      
+
       const teamsInMatchPromises = matchtmp.teams.map(async (team) => {
         await prisma.teamInMatch.create({
           data: {
-            score : 0,
-            rank : team.rank,
-            teamId : team.id,
-            name : team.name,
-            tournamentId : res.tournamentId,
+            score: 0,
+            rank: team.rank,
+            teamId: team.id,
+            name: team.name,
+            tournamentId: res.tournamentId,
+            tournamentRoundId: createdRound.id,
+
             match: {
               connect: {
                 id: createdMatch.id,
@@ -61,14 +62,16 @@ export async function POST(request) {
           },
         });
       });
-      
     });
 
     const createdMatches = await Promise.all(matchPromises);
 
-    return NextResponse.json({ result : { createdRound, createdMatches} });
+    return NextResponse.json({ result: { createdRound, createdMatches } });
   } catch (error) {
-    console.error('Error creating round and matches:', error.message);
-    return NextResponse.json({ error: 'Error creating round and matches' }, { status: 500 });
+    console.error("Error creating round and matches:", error.message);
+    return NextResponse.json(
+      { error: "Error creating round and matches" },
+      { status: 500 },
+    );
   }
 }
