@@ -4,6 +4,7 @@ import { updateMatchScore } from "@/lib/actionServer";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
+import TeamScore from "./teamScore";
 
 export default function MatchCard({ match }) {
   const matchDate = new Date(match.startDate);
@@ -24,10 +25,12 @@ export default function MatchCard({ match }) {
   const [state, formAction] = useFormState(updateMatchScore, undefined);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    state?.success && router.refresh();
+    router.refresh();
     setIsLoading(false);
+    setEditMode(false);
   }, [state?.success, router]);
 
   const handleTeam1Score = (e) => {
@@ -47,42 +50,31 @@ export default function MatchCard({ match }) {
         <div className="text-gray-600">At {formattedTime}</div>
       </div>
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div className="text-lg text-gray-600 font-medium">{team1.rank}</div>
-          <div className="text-lg text-gray-600 font-medium">{team1.name}</div>
-          {team1.score > 0 ? (
-            <div className="text-lg text-gray-600 font-medium">
-              {team1.score}
-            </div>
-          ) : (
-            <input
-              type="number"
-              min="0"
-              className="border text-gray-600 border-gray-300 rounded-lg w-16 p-1 text-center"
-              value={team1Score}
-              onChange={handleTeam1Score}
-            />
-          )}
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="text-lg text-gray-600 font-medium">{team2.rank}</div>
-          <div className="text-lg text-gray-600 font-medium">{team2.name}</div>
-          {team2.score > 0 ? (
-            <div className="text-lg text-gray-600 font-medium">
-              {team2.score}
-            </div>
-          ) : (
-            <input
-              type="number"
-              min="0"
-              className="border text-gray-600 border-gray-300 rounded-lg w-16 p-1 text-center"
-              value={team2Score}
-              onChange={handleTeam2Score}
-            />
-          )}
-        </div>
-        {team1.score > 0 && team2.score > 0 ? (
-          <div className="text-center text-gray-600">Match is over</div>
+        <TeamScore
+          team={team1}
+          editMode={editMode}
+          handleScore={handleTeam1Score}
+          score={team1Score}
+        />
+        <TeamScore
+          team={team2}
+          editMode={editMode}
+          handleScore={handleTeam2Score}
+          score={team2Score}
+        />
+        {team1.score > 0 && team2.score > 0 && !editMode ? (
+          <div className="flex flex-row w-full justify-between">
+            <div className="text-center text-gray-600">Match is over</div>
+            <button
+              onClick={() => {
+                setEditMode(true);
+                setIsLoading(false);
+              }}
+              className="text-center text-gray-600"
+            >
+              Edit
+            </button>
+          </div>
         ) : (
           <form action={formAction} className="flex flex-col gap-4">
             <input type="hidden" name="team1Score" value={team1Score} />
@@ -93,7 +85,9 @@ export default function MatchCard({ match }) {
             <input type="hidden" name="team1RelId" value={team1.teamId} />
             <input type="hidden" name="team2RelId" value={team2.teamId} />
             <button
-              onClick={() => setIsLoading(true)}
+              onClick={() => {
+                setIsLoading(true);
+              }}
               className="border-2 p-2 rounded-lg bg-blue-800 hover:bg-blue-700"
             >
               {isLoading ? (
@@ -102,6 +96,14 @@ export default function MatchCard({ match }) {
                 "Save"
               )}
             </button>
+            {editMode && (
+              <button
+                onClick={() => setEditMode(false)}
+                className="text-center text-gray-600"
+              >
+                close
+              </button>
+            )}
           </form>
         )}
       </div>
